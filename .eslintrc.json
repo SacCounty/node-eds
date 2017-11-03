@@ -1,0 +1,43 @@
+{
+    "plugins": ["jasmine", "node"],
+    "env": {
+        "browser": true,
+        "amd": true,
+        "jasmine": true,
+        "es6": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "google"
+    ],
+    "rules": {
+        "no-var": [
+        "off"
+        ],
+        "indent": [
+            "error",
+            4
+        ],
+        "linebreak-style": [
+            "error",
+            "windows"
+        ],
+        "max-len": [
+            "warn",
+            120,
+            {"ignoreComments": true}
+        ],
+        "quotes": [
+            "error",
+            "double"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "comma-dangle": [
+            "error",
+            "never"
+        ]
+    }
+}

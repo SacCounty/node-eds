@@ -1,0 +1,43 @@
+{
+  "name": "node-eds",
+  "version": "1.0.0",
+  "description": "A Node.js implementation of IBM Content Navigator External Data Service",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saccounty/node-eds.git"
+  },
+  "author": "Guy Sperry",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/saccounty/node-eds/issues"
+  },
+  "homepage": "https://github.com/saccounty/node-eds#readme",
+  "devDependencies": {
+    "eslint": "^3.19.0",
+    "eslint-bamboo-formatter": "^0.1.0",
+    "eslint-config-google": "^0.7.1",
+    "eslint-plugin-jasmine": "^2.2.0",
+    "eslint-plugin-node": "^4.2.2",
+    "eslint-plugin-requirejs": "^3.1.1",
+    "gulp": "^3.9.1",
+    "gulp-eslint": "^3.0.1",
+    "gulp-nodemon": "^2.2.1",
+    "require-dir": "^0.3.1",
+    "run-sequence": "^1.2.2"
+  },
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "config": "^1.25.1",
+    "errorhandler": "^1.5.0",
+    "express": "^4.15.2",
+    "http": "0.0.0",
+    "path": "^0.12.7",
+    "winston": "^2.3.1",
+    "winston-syslog": "^1.2.6"
+  }
+}
