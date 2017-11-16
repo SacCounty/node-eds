@@ -2,7 +2,7 @@ let logger = null;
 
 function getMembers(yardiCode) {
     logger.debug("Getting members for YardiCode: " + yardiCode);
-    return ["Lee Richards","Tommy Stewart","Joe D'Arco","Robbie Merrill","Tony Rombola","Sully Erna"];
+    return ["Lee Richards","Tommy Stewart","Joe D'Arco","Robbie Merrill","Tony Rombola"];
 }
 
 function processData(data) {
@@ -23,30 +23,37 @@ function processData(data) {
             let yardiCodeProperty = data.properties.find(function(p) {
                 return p.symbolicName === "YardiCode";
             });
-            let membersProperty = data.properties.find(function(p) {
-                return p.symbolicName === "Members";
-            });
-            if(yardiCodeProperty && yardiCodeProperty.value && membersProperty) {
-                let members = getMembers(yardiCodeProperty.value);
 
-                let choices = members.map(function(m) {
-                    return {
-                        displayName: m,
-                        active: true,
-                        value: m
-                    }
+            if(yardiCodeProperty && (requestMode === "initialNewObject" || requestMode === "initialExistingObject")) {
+                yardiCodeProperty.hasDependentProperties = true;
+                responseData.properties.push(yardiCodeProperty);
+            }
+
+            if(yardiCodeProperty && requestMode === "inProgressChanges") {
+                let membersProperty = data.properties.find(function(p) {
+                    return p.symbolicName === "Members";
                 });
-                let overrideProperty = {
-                    symbolicName: "Members",
-                    value: membersProperty.value,
-                    choiceList: {
-                        displayName: "Yardi Household Members",
-                        choices: choices,
-                        
-                    },
-                    hasDependentProperties: false
-                };
-                responseData.properties.push(overrideProperty);
+                if(membersProperty) {
+                    let members = getMembers(yardiCodeProperty.value);
+
+                    let choices = members.map(function(m) {
+                        return {
+                            value: m,
+                            active: true,
+                            displayName: m
+                        }
+                    });
+                    let overrideProperty = {
+                        value: membersProperty.value,
+                        hasDependentProperties: false,                    
+                        symbolicName: "Members",
+                        choiceList: {
+                            displayName: "Yardi Household Members",
+                            choices: choices
+                        }
+                    };
+                    responseData.properties.push(overrideProperty);    
+                }
             }
         }
         fulfill(responseData);

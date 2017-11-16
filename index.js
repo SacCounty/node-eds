@@ -1,4 +1,4 @@
-/* global require, process */
+/* global require, process, Buffer */
 "use strict";
 let winston = require("winston");
 let config = require("config");
@@ -45,7 +45,7 @@ try {
 app.set("port", port || 3000);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
-
+app.set("etag", false);
 let server = http.createServer(app);
 
 server.listen(app.get("port"), function() {
@@ -64,6 +64,7 @@ app.get("/types", function(req, res) {
     if(repository) {
         supportedTypes = repository.supportedTypes;
     }
+    logger.debug("Returning types.". supportedTypes);
     res.status(200).send(supportedTypes);
 });
 
@@ -73,7 +74,14 @@ app.post("/type/:typeId", function(req, res) {
     let processData = require("./api/" + type)(logger);
 
     processData(req.body).then(function(result) {
-        res.status(200).send(result);
+        logger.debug("Returning result.", result);
+        // ICN seems to expect odd stuff. The header and response funkiness seems necessary.
+        res.setHeader("X-Powered-By", "Servlet/3.0");
+        res.setHeader("Content-Language", "en-US");
+        res.removeHeader("Connection");
+        res.writeHead(200, {});
+        res.write(new Buffer(JSON.stringify(result)));
+        res.end();
     }, function(err) {
         res.status(500).send(err);
     });
