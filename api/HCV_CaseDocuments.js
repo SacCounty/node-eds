@@ -1,8 +1,46 @@
 let logger = null;
+let sql = require("mssql");
+let config = null;
+let pool = null;
+
+/**
+ * initialize SQL connection.
+ */
+function setupSql() {
+    return new Promise(function(fulfill, reject) {
+        if(!pool) {            
+            pool = new sql.ConnectionPool(config).connect().then(function(p) {
+                logger.debug("SHRA DB Connected.");
+                pool = p;
+                pool.on("error", function(err) {
+                    logger.error(err);
+                });
+                fulfill();
+            }, function(err) {
+                logger.error(err);
+                reject(err);
+            });
+        } else {
+            fulfill();
+        }
+    });
+}
 
 function getMembers(yardiCode) {
-    logger.debug("Getting members for YardiCode: " + yardiCode);
-    return ["Lee Richards","Tommy Stewart","Joe D'Arco","Robbie Merrill","Tony Rombola"];
+    return new Promise(function(fulfill, reject) {
+        setupSql().then(function() {
+            let request = pool.request();
+            
+            request.input("YARDICODE", yardiCode || "");
+            request.execute("select_members_by_yardicode").then(function(result) {
+                logger.debug("Stored proc result.", result);
+                fulfill(result.recordset);
+            }).catch(function(err) {
+                logger.error("Error in stored procedure." + err);
+                reject(err);
+            });
+        });
+    });
 }
 
 function processData(data) {
@@ -27,32 +65,32 @@ function processData(data) {
             if(yardiCodeProperty && (requestMode === "initialNewObject" || requestMode === "initialExistingObject")) {
                 yardiCodeProperty.hasDependentProperties = true;
                 responseData.properties.push(yardiCodeProperty);
-            }
-
-            if(yardiCodeProperty && requestMode === "inProgressChanges") {
+            } else if(yardiCodeProperty && requestMode === "inProgressChanges") {
                 let membersProperty = data.properties.find(function(p) {
                     return p.symbolicName === "Members";
                 });
                 if(membersProperty) {
-                    let members = getMembers(yardiCodeProperty.value);
-
-                    let choices = members.map(function(m) {
-                        return {
-                            value: m,
-                            active: true,
-                            displayName: m
-                        }
+                    getMembers(yardiCodeProperty.value).then(function(members) {
+                        let choices = members.map(function(m) {
+                            return {
+                                value: m.membername,
+                                active: true,
+                                displayName: m.membername
+                            }
+                        });
+                        let overrideProperty = {
+                            value: membersProperty.value,
+                            hasDependentProperties: false,                    
+                            symbolicName: "Members",
+                            choiceList: {
+                                displayName: "Yardi Household Members",
+                                choices: choices
+                            }
+                        };
+                        responseData.properties.push(overrideProperty);
+                        fulfill(responseData);
                     });
-                    let overrideProperty = {
-                        value: membersProperty.value,
-                        hasDependentProperties: false,                    
-                        symbolicName: "Members",
-                        choiceList: {
-                            displayName: "Yardi Household Members",
-                            choices: choices
-                        }
-                    };
-                    responseData.properties.push(overrideProperty);    
+                    return;
                 }
             }
         }
@@ -60,7 +98,22 @@ function processData(data) {
     });
 }
 
-module.exports = function(log) {
+module.exports = function(log, cfg) {
+    // config is delivered frozen and this causes problems in mssql. So, just copy over.
+    config = {
+        server: cfg.server,
+        database: cfg.database,
+        user: cfg.user,
+        password: cfg.password,
+        port: cfg.port,
+        options: {
+            useUTC: false
+        }
+    };
+    
     logger = log;
+
+    setupSql(config);
+    
     return processData;
 }

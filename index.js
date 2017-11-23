@@ -70,8 +70,14 @@ app.get("/types", function(req, res) {
 
 app.post("/type/:typeId", function(req, res) {
     let type = req.params.typeId;
+    let cfg;
+    try {
+        cfg = config.get("node-eds." + type);
+    } catch(e) {
+        logger.info("No configuration for type: " + type);
+    }
 
-    let processData = require("./api/" + type)(logger);
+    let processData = require("./api/" + type)(logger, cfg);
 
     processData(req.body).then(function(result) {
         logger.debug("Returning result.", result);

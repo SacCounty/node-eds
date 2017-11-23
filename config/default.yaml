@@ -22,6 +22,12 @@ node-eds:
                 level: trace
                 colorize: true
     repositories:
-        repositoryId: DevSHRA
-        supportedTypes:
-            -symbolicName: HCV_CaseDocuments
+        - repositoryId: DevSHRA
+          supportedTypes:
+           - symbolicName: HCV_CaseDocuments
+    HCV_CaseDocuments:
+        server: 192.168.177.14
+        database: Yardi
+        user: kofaxbarcode
+        port: 1433
+        password: stored locally
