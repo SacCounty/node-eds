@@ -1,0 +1,15 @@
+node-eds:
+    log:
+        transports:
+            - name: console
+              options:
+                level: trace
+                colorize: true
+            - name: syslog
+              options:
+                level: debug
+                host: 10.94.190.187
+                port: 514
+                localhost: icn-edsqa.saccounty.net
+                protocol: udp4
+                app_name: ICN-EDSQA
