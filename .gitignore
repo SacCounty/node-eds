@@ -3,8 +3,9 @@ logs
 *.log
 npm-debug.log*
 
-# Local configs
-config/local*
+# Configs except default
+config/**
+!config/default.*
 
 # Runtime data
 pids
@@ -38,6 +39,3 @@ jspm_packages
 
 # Optional REPL history
 .node_repl_history
-
-#LokiJS database files
-loki.json
