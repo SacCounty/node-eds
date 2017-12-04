@@ -39,6 +39,9 @@ function getMembers(yardiCode) {
                 logger.error("Error in stored procedure." + err);
                 reject(err);
             });
+        }, function(err) {
+            logger.error("Error connecting to Yardi.", err);
+            reject(err);
         });
     });
 }
@@ -89,6 +92,9 @@ function processData(data) {
                         };
                         responseData.properties.push(overrideProperty);
                         fulfill(responseData);
+                    }, function(err) {
+                        logger.error("Error getting members.", err);
+                        reject(err);
                     });
                     return;
                 }

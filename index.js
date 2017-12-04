@@ -64,7 +64,7 @@ app.get("/types", function(req, res) {
     if(repository) {
         supportedTypes = repository.supportedTypes;
     }
-    logger.debug("Returning types.". supportedTypes);
+    logger.debug("Returning types.", supportedTypes);
     res.status(200).send(supportedTypes);
 });
 
@@ -75,6 +75,8 @@ app.post("/type/:typeId", function(req, res) {
         cfg = config.get("node-eds." + type);
     } catch(e) {
         logger.info("No configuration for type: " + type);
+        res.status(500).send("No configuration for type: " + type);
+        return;
     }
 
     let processData = require("./api/" + type)(logger, cfg);
@@ -89,6 +91,7 @@ app.post("/type/:typeId", function(req, res) {
         res.write(new Buffer(JSON.stringify(result)));
         res.end();
     }, function(err) {
+        logger.error("Error processing data for " + type + ".", err);
         res.status(500).send(err);
     });
 });
