@@ -79,7 +79,14 @@ app.post("/type/:typeId", function(req, res) {
         return;
     }
 
-    let processData = require("./api/" + type)(logger, cfg);
+    let processData;
+    try {
+        processData = require("./api/" + type)(logger, cfg);
+    } catch(e) {
+        logger.info("Unable to create component for type: " + type);
+        res.status(500).send("Unable to create component for type: " + type);
+        return;
+    }
 
     processData(req.body).then(function(result) {
         logger.debug("Returning result.", result);

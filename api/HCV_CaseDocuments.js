@@ -61,6 +61,21 @@ function processData(data) {
         };
     
         if(requestMode === "initialNewObject" || requestMode === "initialExistingObject" || requestMode === "inProgressChanges") {
+            // Section for DocumentStatusDate
+            let docStatusDateProperty = data.properties.find(function(p) {
+                return p.symbolicName === "DocumentStatusDate";
+            });
+
+            if(docStatusDateProperty && (!docStatusDateProperty.value) && requestMode === "inProgressChanges") {
+                let overrideProperty = {
+                    value: new Date(),
+                    hasDependentProperties: false,                    
+                    symbolicName: "DocumentStatusDate",
+                };
+                responseData.properties.push(overrideProperty);
+            }
+            
+            // Section for Household members depends on YardiCode
             let yardiCodeProperty = data.properties.find(function(p) {
                 return p.symbolicName === "YardiCode";
             });
